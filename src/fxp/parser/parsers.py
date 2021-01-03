@@ -12,7 +12,7 @@ class BaseParser(ABC):
     def __init__(self, user_agent:str = None):
         self._user_agent = user_agent if user_agent is not None else DEFAULT_USER_AGENT
         
-    def get_page(self, url):
+    def _get_page(self, url):
         response = requests.get(
             url,
             headers={
@@ -20,7 +20,7 @@ class BaseParser(ABC):
             },
         )
         if response.status_code == 200:
-            return BS(response.txt, features="lxml")
+            return BS(response.text, features="html.parser")
         raise ValueError("response not 200")           
 
 @abstractmethod
@@ -47,17 +47,17 @@ class Preview(BaseParser):
         self.__links = []
 
 
-    def ger_links(self):
+    def get_links(self):
         try:
             html = self._get_page(PREVIEW_URL.format(HOST, self.__num_page))
         except ValueError:
             self.__links = []
         else:
-            box = html.find("div", attrs={"class":"largeTitle"})
+            box = html.find("div", attrs={"class": "largeTitle"})
             if box is not None:
-                articles = box.find_all("articles", attrs={"class": "js-article-item articleItem"})
+                articles = box.find_all("article", attrs={"class": "js-article-item articleItem"})
                 for article in articles:
-                    link = article.find("class", attrs={"class", "title"})
+                    link = article.find("a", attrs={"class", "title"})
                     self.__links.append(HOST + link.get("href"))
 
             else:
@@ -65,16 +65,16 @@ class Preview(BaseParser):
 
 
     def save_to_file(self, name):
-        path = os.path.join(BASE_DIR, name = ".bin")
+        path = os.path.join(BASE_DIR, name + ".bin")
         pickle.dump(self.__links, open(path,"wb"))
 
     def save_to_json(self, name):
-        path = os.path.join(BASE_DIR, name = ".json")
+        path = os.path.join(BASE_DIR, name + ".json")
         json.dump(self.__links, open(path,"w"))
 
 if __name__ == "__main__":
     parser = Preview(page=2)
     parser.get_links()
     print(parser._Preview__links)
-    parser .save_to_json("links_2")
+    parser.save_to_json("links_2")
     parser.save_to_file("links_2")
