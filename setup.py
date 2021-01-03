@@ -1,5 +1,5 @@
 import os
-from setuptoolsimport setup, find_packages
+from setuptools import setup, find_packages
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
