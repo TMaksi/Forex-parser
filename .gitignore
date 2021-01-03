@@ -137,7 +137,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 *.txt
-!requeirements.txt
+!requirements.txt
 news_data/
 .vscode/
 *.bin
